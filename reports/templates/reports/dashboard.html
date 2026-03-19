@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Enterprise Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<h1>Enterprise Reporting Dashboard</h1>
+
+<h2>Uploaded Reports</h2>
+
+<h2>Upload New Report</h2>
+
+<form method="POST" enctype="multipart/form-data">
+
+{% csrf_token %}
+
+{{ form.as_p }}
+
+<button type="submit">Upload</button>
+
+</form>
+
+<table border="1">
+
+<tr>
+<th>Title</th>
+<th>User</th>
+<th>Status</th>
+<th>Date</th>
+</tr>
+
+{% for report in reports %}
+
+<tr>
+
+<td>{{ report.title }}</td>
+
+<td>{{ report.uploaded_by }}</td>
+
+<td>{{ report.status }}</td>
+
+<td>{{ report.uploaded_at }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+<h2>Report Analytics</h2>
+
+<p>Labels: {{ labels }}</p>
+<p>Data: {{ data }}</p>
+
+<canvas id="reportChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const labels = {{ labels|safe }};
+const data = {{ data|safe }};
+
+const ctx = document.getElementById('reportChart').getContext('2d');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Column Data Count',
+            data: data,
+            borderWidth: 1
+        }]
+    }
+});
+
+</script>
+
+</body>
+
+</html>

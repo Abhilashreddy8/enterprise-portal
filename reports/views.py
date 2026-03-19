@@ -16,36 +16,35 @@ def dashboard(request):
 
     chart_labels = []
     chart_data = []
+    try:
+        if request.method == "POST":
 
-    if request.method == "POST":
+            form = ReportUploadForm(request.POST, request.FILES)
 
-        form = ReportUploadForm(request.POST, request.FILES)
+            if form.is_valid():
 
-        if form.is_valid():
+                report = form.save(commit=False)
 
-            report = form.save(commit=False)
-            #report.uploaded_by = request.user
-            if request.user.is_authenticated:
-                report.uploaded_by = request.user
-            else:
-                report.uploaded_by = User.objects.first()
-                
-            report.status = "Uploaded"
-            report.save()
+                if request.user.is_authenticated:
+                    report.uploaded_by = request.user
+                else:
+                    report.uploaded_by = User.objects.first()
 
-            #file_path = report.file.path
-            file = request.FILES.get('file')
+                report.status = "Uploaded"
+                report.save()
 
-            if file:
-                df = pd.read_csv(file)
+                file = request.FILES.get('file')
 
-                # Example analytics
-                chart_labels = list(df.columns)
+                if file:
+                    file.seek(0)  # 🔥 REQUIRED
+                    df = pd.read_csv(file)
 
-                #chart_data = [df[col].count() for col in df.columns]
-                chart_data = [int(df[col].count()) for col in df.columns]
+                    chart_labels = list(df.columns)
+                    chart_data = [int(df[col].count()) for col in df.columns]
+                    print(file.tell())  
 
-                print('chart_data', chart_data)
+    except Exception as e:
+        print("ERROR OCCURRED:", str(e))
 
             #return redirect("dashboard")
 

@@ -24,21 +24,28 @@ def dashboard(request):
         if form.is_valid():
 
             report = form.save(commit=False)
-            report.uploaded_by = request.user
+            #report.uploaded_by = request.user
+            if request.user.is_authenticated:
+                report.uploaded_by = request.user
+            else:
+                report.uploaded_by = User.objects.first()
+                
             report.status = "Uploaded"
             report.save()
 
-            file_path = report.file.path
+            #file_path = report.file.path
+            file = request.FILES.get('file')
 
-            df = pd.read_csv(file_path)
+            if file:
+                df = pd.read_csv(file)
 
-            # Example analytics
-            chart_labels = list(df.columns)
+                # Example analytics
+                chart_labels = list(df.columns)
 
-            #chart_data = [df[col].count() for col in df.columns]
-            chart_data = [int(df[col].count()) for col in df.columns]
+                #chart_data = [df[col].count() for col in df.columns]
+                chart_data = [int(df[col].count()) for col in df.columns]
 
-            print('chart_data', chart_data)
+                print('chart_data', chart_data)
 
             #return redirect("dashboard")
 
